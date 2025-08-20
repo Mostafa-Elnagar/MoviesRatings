@@ -63,6 +63,14 @@ SELECT * FROM iceberg.movies.raw_movies LIMIT 5;
 
 ## Configuration
 
+All configuration is centralized in `config/settings.py`:
+- Service URLs and ports
+- Container names
+- Database settings
+- Timeouts and credentials
+- Table names and formats
+
+Other configuration files:
 - **Docker Compose**: `infrastructure/docker-compose.yml`
 - **Trino Config**: `infrastructure/trino/`
 - **Pipeline Config**: `config/pipeline_config.yaml`

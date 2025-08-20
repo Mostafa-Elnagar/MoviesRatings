@@ -9,27 +9,33 @@ import requests
 import time
 import sys
 from typing import Optional
+from pathlib import Path
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from config.settings import *
 
 
 class MovieRatingsSetup:
     """Complete setup for Movie Ratings data lakehouse"""
     
     def __init__(self):
-        self.base_url = "http://localhost:8181"
         self.access_token: Optional[str] = None
         
     def start_infrastructure(self) -> bool:
         """Start Docker services"""
         print("Starting Docker services...")
         try:
-            subprocess.run(['docker-compose', '-f', 'infrastructure/docker-compose.yml', 'up', '-d'], check=True)
+            subprocess.run(['docker-compose', '-f', DOCKER_COMPOSE_FILE, 'up', '-d'], check=True)
             print("Services started successfully")
             return True
         except subprocess.CalledProcessError as e:
             print(f"Failed to start services: {e}")
             return False
     
-    def wait_for_services(self, timeout: int = 180) -> bool:
+    def wait_for_services(self, timeout: int = SERVICE_TIMEOUT) -> bool:
         """Wait for all services to be ready"""
         print("Waiting for services to be ready...")
         
@@ -40,8 +46,8 @@ class MovieRatingsSetup:
             # Check MinIO
             if not services_ready['minio']:
                 try:
-                    subprocess.run(['docker', 'exec', 'minio-client', 'mc', 'ls', 'minio'], 
-                                 capture_output=True, text=True, check=True, timeout=10)
+                    subprocess.run(['docker', 'exec', MINIO_CLIENT_CONTAINER, 'mc', 'ls', 'minio'], 
+                                 capture_output=True, text=True, check=True, timeout=REQUEST_TIMEOUT)
                     print("MinIO is ready")
                     services_ready['minio'] = True
                 except:
@@ -50,7 +56,7 @@ class MovieRatingsSetup:
             # Check Polaris
             if not services_ready['polaris']:
                 try:
-                    response = requests.get(f"{self.base_url}/api/catalog/", timeout=5)
+                    response = requests.get(POLARIS_CATALOG_ENDPOINT, timeout=5)
                     if response.status_code in [200, 404]:
                         print("Polaris is ready")
                         services_ready['polaris'] = True
@@ -60,8 +66,8 @@ class MovieRatingsSetup:
             # Check Trino
             if not services_ready['trino']:
                 try:
-                    subprocess.run(['docker', 'exec', 'trino', 'trino', '--server', 'localhost:8080', '--execute', 'SELECT 1;'], 
-                                 capture_output=True, text=True, check=True, timeout=10)
+                    subprocess.run(['docker', 'exec', TRINO_CONTAINER, 'trino', '--server', TRINO_SERVER, '--execute', 'SELECT 1;'], 
+                                 capture_output=True, text=True, check=True, timeout=REQUEST_TIMEOUT)
                     print("Trino is ready")
                     services_ready['trino'] = True
                 except:
@@ -96,16 +102,15 @@ class MovieRatingsSetup:
         """Get OAuth access token from Polaris"""
         print("Getting OAuth access token...")
         
-        url = f"{self.base_url}/api/catalog/v1/oauth/tokens"
         data = {
             'grant_type': 'client_credentials',
-            'client_id': 'root',
-            'client_secret': 'secret',
-            'scope': 'PRINCIPAL_ROLE:ALL'
+            'client_id': POLARIS_CLIENT_ID,
+            'client_secret': POLARIS_CLIENT_SECRET,
+            'scope': POLARIS_SCOPE
         }
         
         try:
-            response = requests.post(url, data=data, timeout=10)
+            response = requests.post(POLARIS_TOKEN_ENDPOINT, data=data, timeout=REQUEST_TIMEOUT)
             if response.status_code == 200:
                 token_data = response.json()
                 self.access_token = token_data.get('access_token')
@@ -130,29 +135,29 @@ class MovieRatingsSetup:
         
         print("Creating Iceberg catalog...")
         
-        url = f"{self.base_url}/api/management/v1/catalogs"
+        url = f"{POLARIS_MANAGEMENT_ENDPOINT}/catalogs"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         
         catalog_config = {
-            "name": "polariscatalog",
+            "name": CATALOG_NAME,
             "type": "INTERNAL",
             "properties": {
-                "default-base-location": "s3://warehouse",
-                "s3.endpoint": "http://minio:9000",
+                "default-base-location": S3_BASE_LOCATION,
+                "s3.endpoint": S3_ENDPOINT,
                 "s3.path-style-access": "true",
-                "s3.access-key-id": "minioadmin",
-                "s3.secret-access-key": "minioadmin",
-                "s3.region": "dummy-region"
+                "s3.access-key-id": MINIO_ACCESS_KEY,
+                "s3.secret-access-key": MINIO_SECRET_KEY,
+                "s3.region": MINIO_REGION
             },
             "storageConfigInfo": {
-                "roleArn": "arn:aws:iam::000000000000:role/minio-polaris-role",
+                "roleArn": ROLE_ARN,
                 "storageType": "S3",
-                "allowedLocations": ["s3://warehouse/*"]
+                "allowedLocations": [f"{S3_BASE_LOCATION}/*"]
             }
         }
         
         try:
-            response = requests.post(url, headers=headers, json=catalog_config, timeout=10)
+            response = requests.post(url, headers=headers, json=catalog_config, timeout=REQUEST_TIMEOUT)
             if response.status_code in [200, 201]:
                 print("Iceberg catalog created successfully")
                 return True
@@ -174,11 +179,11 @@ class MovieRatingsSetup:
         headers = {"Authorization": f"Bearer {self.access_token}"}
         
         # Create catalog admin role
-        url = f"{self.base_url}/api/management/v1/catalogs/polariscatalog/catalog-roles/catalog_admin/grants"
+        url = f"{POLARIS_MANAGEMENT_ENDPOINT}/catalogs/{CATALOG_NAME}/catalog-roles/catalog_admin/grants"
         grant_data = {"grant": {"type": "catalog", "privilege": "CATALOG_MANAGE_CONTENT"}}
         
         try:
-            response = requests.put(url, headers=headers, json=grant_data, timeout=10)
+            response = requests.put(url, headers=headers, json=grant_data, timeout=REQUEST_TIMEOUT)
             if response.status_code not in [200, 201]:
                 print(f"Failed to create catalog admin role: {response.status_code}")
                 return False
@@ -187,11 +192,11 @@ class MovieRatingsSetup:
             return False
         
         # Create data engineer role
-        url = f"{self.base_url}/api/management/v1/principal-roles"
+        url = f"{POLARIS_MANAGEMENT_ENDPOINT}/principal-roles"
         role_data = {"principalRole": {"name": "data_engineer"}}
         
         try:
-            response = requests.post(url, headers=headers, json=role_data, timeout=10)
+            response = requests.post(url, headers=headers, json=role_data, timeout=REQUEST_TIMEOUT)
             if response.status_code not in [200, 201]:
                 print(f"Failed to create data engineer role: {response.status_code}")
                 return False
@@ -200,11 +205,11 @@ class MovieRatingsSetup:
             return False
         
         # Connect the roles
-        url = f"{self.base_url}/api/management/v1/principal-roles/data_engineer/catalog-roles/polariscatalog"
+        url = f"{POLARIS_MANAGEMENT_ENDPOINT}/principal-roles/data_engineer/catalog-roles/{CATALOG_NAME}"
         catalog_role_data = {"catalogRole": {"name": "catalog_admin"}}
         
         try:
-            response = requests.put(url, headers=headers, json=catalog_role_data, timeout=10)
+            response = requests.put(url, headers=headers, json=catalog_role_data, timeout=REQUEST_TIMEOUT)
             if response.status_code not in [200, 201]:
                 print(f"Failed to connect roles: {response.status_code}")
                 return False
@@ -213,11 +218,11 @@ class MovieRatingsSetup:
             return False
         
         # Give root the data engineer role
-        url = f"{self.base_url}/api/management/v1/principals/root/principal-roles"
+        url = f"{POLARIS_MANAGEMENT_ENDPOINT}/principals/root/principal-roles"
         principal_role_data = {"principalRole": {"name": "data_engineer"}}
         
         try:
-            response = requests.put(url, headers=headers, json=principal_role_data, timeout=10)
+            response = requests.put(url, headers=headers, json=principal_role_data, timeout=REQUEST_TIMEOUT)
             if response.status_code not in [200, 201]:
                 print(f"Failed to assign role to root: {response.status_code}")
                 return False
@@ -233,26 +238,26 @@ class MovieRatingsSetup:
         print("Creating Iceberg tables...")
         
         # Create schema first
-        schema_cmd = "CREATE SCHEMA IF NOT EXISTS iceberg.movies;"
+        schema_cmd = f"CREATE SCHEMA IF NOT EXISTS iceberg.{ICEBERG_SCHEMA};"
         if not self._execute_trino_command(schema_cmd, "Creating movies schema"):
             return False
         
         # Table definitions
         tables = {
-            'raw_movies': """
-                CREATE TABLE IF NOT EXISTS iceberg.movies.raw_movies (
+            RAW_MOVIES_TABLE: f"""
+                CREATE TABLE IF NOT EXISTS iceberg.{ICEBERG_SCHEMA}.{RAW_MOVIES_TABLE} (
                     id BIGINT, title VARCHAR, release_date DATE, overview VARCHAR,
                     popularity DOUBLE, vote_average DOUBLE, vote_count INTEGER,
                     genre_ids ARRAY(INTEGER), original_language VARCHAR,
                     original_title VARCHAR, backdrop_path VARCHAR, poster_path VARCHAR,
                     created_at TIMESTAMP, updated_at TIMESTAMP
                 ) WITH (
-                    format = 'PARQUET',
+                    format = '{TABLE_FORMAT}',
                     partitioning = ARRAY['year(release_date)']
                 )
             """,
-            'enriched_movies': """
-                CREATE TABLE IF NOT EXISTS iceberg.movies.enriched_movies (
+            ENRICHED_MOVIES_TABLE: f"""
+                CREATE TABLE IF NOT EXISTS iceberg.{ICEBERG_SCHEMA}.{ENRICHED_MOVIES_TABLE} (
                     id BIGINT, title VARCHAR, release_date DATE, overview VARCHAR,
                     popularity DOUBLE, vote_average DOUBLE, vote_count INTEGER,
                     genres ARRAY(VARCHAR), original_language VARCHAR,
@@ -260,16 +265,16 @@ class MovieRatingsSetup:
                     imdb_rating DOUBLE, imdb_votes INTEGER, metacritic_score INTEGER,
                     rotten_tomatoes_score INTEGER, created_at TIMESTAMP, updated_at TIMESTAMP
                 ) WITH (
-                    format = 'PARQUET',
+                    format = '{TABLE_FORMAT}',
                     partitioning = ARRAY['year(release_date)']
                 )
             """,
-            'movie_ratings': """
-                CREATE TABLE IF NOT EXISTS iceberg.movies.movie_ratings (
+            MOVIE_RATINGS_TABLE: f"""
+                CREATE TABLE IF NOT EXISTS iceberg.{ICEBERG_SCHEMA}.{MOVIE_RATINGS_TABLE} (
                     movie_id BIGINT, source VARCHAR, rating DOUBLE, max_rating DOUBLE,
                     votes_count INTEGER, rating_date DATE, created_at TIMESTAMP
                 ) WITH (
-                    format = 'PARQUET',
+                    format = '{TABLE_FORMAT}',
                     partitioning = ARRAY['year(rating_date)']
                 )
             """
@@ -289,8 +294,8 @@ class MovieRatingsSetup:
         
         try:
             subprocess.run([
-                'docker', 'exec', 'trino', 'trino',
-                '--server', 'localhost:8080',
+                'docker', 'exec', TRINO_CONTAINER, 'trino',
+                '--server', TRINO_SERVER,
                 '--execute', command
             ], capture_output=True, text=True, check=True)
             
@@ -309,14 +314,14 @@ class MovieRatingsSetup:
         
         try:
             result = subprocess.run([
-                'docker', 'exec', 'trino', 'trino',
-                '--server', 'localhost:8080',
+                'docker', 'exec', TRINO_CONTAINER, 'trino',
+                '--server', TRINO_SERVER,
                 '--catalog', 'iceberg',
-                '--schema', 'movies',
+                '--schema', ICEBERG_SCHEMA,
                 '--execute', 'SHOW TABLES;'
             ], capture_output=True, text=True, check=True)
             
-            if 'raw_movies' in result.stdout and 'enriched_movies' in result.stdout:
+            if RAW_MOVIES_TABLE in result.stdout and ENRICHED_MOVIES_TABLE in result.stdout:
                 print("Setup verification successful!")
                 print("Available tables:")
                 print(result.stdout)

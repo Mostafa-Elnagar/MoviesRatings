@@ -7,13 +7,20 @@ Quick check if the Movie Ratings data lakehouse is working
 import subprocess
 import requests
 import sys
+from pathlib import Path
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from config.settings import *
 
 
 def check_docker_services():
     """Check if Docker services are running"""
     print("Checking Docker services...")
     try:
-        subprocess.run(['docker-compose', '-f', 'infrastructure/docker-compose.yml', 'ps'], 
+        subprocess.run(['docker-compose', '-f', DOCKER_COMPOSE_FILE, 'ps'], 
                       capture_output=True, text=True, check=True)
         print("Docker services are running")
         return True
@@ -27,8 +34,8 @@ def check_trino():
     print("Checking Trino...")
     try:
         subprocess.run([
-            'docker', 'exec', 'trino', 'trino',
-            '--server', 'localhost:8080',
+            'docker', 'exec', TRINO_CONTAINER, 'trino',
+            '--server', TRINO_SERVER,
             '--execute', 'SELECT 1 as test;'
         ], capture_output=True, text=True, check=True)
         print("Trino is accessible")
@@ -42,7 +49,7 @@ def check_polaris():
     """Check if Polaris is accessible"""
     print("Checking Polaris...")
     try:
-        response = requests.get("http://localhost:8181/api/catalog/", timeout=5)
+        response = requests.get(POLARIS_CATALOG_ENDPOINT, timeout=5)
         if response.status_code in [200, 404]:  # 404 is expected for this endpoint
             print("Polaris is accessible")
             return True
@@ -59,7 +66,7 @@ def check_minio():
     print("Checking MinIO...")
     try:
         subprocess.run([
-            'docker', 'exec', 'minio-client', 'mc', 'ls', 'minio'
+            'docker', 'exec', MINIO_CLIENT_CONTAINER, 'mc', 'ls', 'minio'
         ], capture_output=True, text=True, check=True)
         print("MinIO is accessible")
         return True
@@ -73,14 +80,14 @@ def check_tables():
     print("Checking Iceberg tables...")
     try:
         result = subprocess.run([
-            'docker', 'exec', 'trino', 'trino',
-            '--server', 'localhost:8080',
+            'docker', 'exec', TRINO_CONTAINER, 'trino',
+            '--server', TRINO_SERVER,
             '--catalog', 'iceberg',
-            '--schema', 'movies',
+            '--schema', ICEBERG_SCHEMA,
             '--execute', 'SHOW TABLES;'
         ], capture_output=True, text=True, check=True)
         
-        if 'raw_movies' in result.stdout and 'enriched_movies' in result.stdout:
+        if RAW_MOVIES_TABLE in result.stdout and ENRICHED_MOVIES_TABLE in result.stdout:
             print("Iceberg tables exist")
             return True
         else:

@@ -84,7 +84,7 @@ services:
     networks:
       - local-iceberg-lakehouse
     volumes:
-      - ./infrastructure/trino/catalog:/etc/trino/catalog
+      - ./trino/catalog:/etc/trino/catalog
     depends_on:
       - minio
 
