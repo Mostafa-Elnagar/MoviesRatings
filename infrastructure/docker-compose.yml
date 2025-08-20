@@ -1,0 +1,97 @@
+services:
+  # MinIO Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_REGION: dummy-region
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_DOMAIN: minio
+    networks:
+      local-iceberg-lakehouse:
+        aliases:
+          - warehouse.minio
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 20s
+      timeout: 20s
+      retries: 3
+  minio-client:
+    image: minio/mc:latest
+    container_name: minio-client
+    depends_on:
+      - minio
+    networks:
+      - local-iceberg-lakehouse
+    volumes:
+      - /tmp:/tmp
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_REGION: dummy-region
+    entrypoint: >
+      /bin/sh -c "
+      until (mc alias set minio http://minio:9000 minioadmin minioadmin) do echo '...waiting...' && sleep 1; done;
+      mc rm -r --force minio/warehouse;
+      mc mb minio/warehouse;
+      mc anonymous set public minio/warehouse;
+      tail -f /dev/null
+      " 
+  # Polaris Catalog Server
+  polaris:
+    image: apache/polaris:latest
+    container_name: polaris
+    ports:
+      - "8181:8181"
+      - "8182:8182"
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_REGION: dummy-region
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      AWS_ENDPOINT_URL_STS: http://minio:9000
+      POLARIS_BOOTSTRAP_CREDENTIALS: default-realm,root,secret
+      polaris.features.DROP_WITH_PURGE_ENABLED: true # allow dropping tables from the SQL client
+      polaris.realm-context.realms: default-realm
+    networks:
+      - local-iceberg-lakehouse
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8181/healthcheck"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  # Trino SQL Engine
+  trino:
+    image: trinodb/trino:latest
+    container_name: trino
+    ports:
+      - "8080:8080"
+    environment:
+      - TRINO_JVM_OPTS=-Xmx2G
+    networks:
+      - local-iceberg-lakehouse
+    volumes:
+      - ./infrastructure/trino/catalog:/etc/trino/catalog
+    depends_on:
+      - minio
+
+
+volumes:
+  minio_data:
+
+networks:
+  local-iceberg-lakehouse:
+    name: local-iceberg-lakehouse
