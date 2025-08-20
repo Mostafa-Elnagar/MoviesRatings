@@ -10,15 +10,19 @@ MovieRatings/
 │
 ├── infrastructure/             # Docker infrastructure
 │   ├── docker-compose.yml     # Docker services configuration
-│   ├── minio/                 # MinIO configuration
-│   ├── polaris/               # Polaris configuration
 │   └── trino/                 # Trino configuration
+│       ├── config.properties  # Trino server configuration
+│       ├── jvm.config         # JVM settings
+│       ├── node.properties    # Node configuration
+│       └── catalog/           # Catalog configurations
+│           └── iceberg.properties # Iceberg catalog config
 │
 ├── scripts/                    # Main orchestration scripts
 │   ├── setup.py               # Infrastructure setup
 │   ├── create_stage_schema.py # Schema and table creation
 │   ├── run_complete_pipeline.py # Complete pipeline runner
-│   └── status.py              # Service status checker
+│   ├── status.py              # Service status checker
+│   └── verify_current_status.py # Current status verification
 │
 ├── data_pipeline/             # Data processing modules
 │   ├── comprehensive_ingestor.py # Main data ingestion orchestrator
@@ -44,7 +48,7 @@ MovieRatings/
 ### Infrastructure
 - **MinIO**: S3-compatible object storage
 - **Polaris**: Iceberg catalog server
-- **Trino**: SQL query engine
+- **Trino**: SQL query engine (no Spark dependencies)
 
 ### Data Pipeline
 - **Ingestion**: TMDB API, OMDb API, web scraping
@@ -64,3 +68,9 @@ MovieRatings/
 4. **Schema**: Tables created in movies_stage
 5. **Loading**: Data inserted into Iceberg tables
 6. **Query**: Data accessible via Trino SQL
+
+## Architecture Notes
+
+- **No Spark**: This project uses Trino directly for SQL queries
+- **Pure SQL**: All data processing is done through SQL queries
+- **Lightweight**: Minimal dependencies, focused on core data lakehouse functionality
