@@ -233,60 +233,7 @@ class MovieRatingsSetup:
         print("Permissions setup completed")
         return True
     
-    def create_tables(self) -> bool:
-        """Create Iceberg tables"""
-        print("Creating Iceberg tables...")
-        
-        # Create schema first
-        schema_cmd = f"CREATE SCHEMA IF NOT EXISTS iceberg.{ICEBERG_SCHEMA};"
-        if not self._execute_trino_command(schema_cmd, "Creating movies schema"):
-            return False
-        
-        # Table definitions
-        tables = {
-            RAW_MOVIES_TABLE: f"""
-                CREATE TABLE IF NOT EXISTS iceberg.{ICEBERG_SCHEMA}.{RAW_MOVIES_TABLE} (
-                    id BIGINT, title VARCHAR, release_date DATE, overview VARCHAR,
-                    popularity DOUBLE, vote_average DOUBLE, vote_count INTEGER,
-                    genre_ids ARRAY(INTEGER), original_language VARCHAR,
-                    original_title VARCHAR, backdrop_path VARCHAR, poster_path VARCHAR,
-                    created_at TIMESTAMP, updated_at TIMESTAMP
-                ) WITH (
-                    format = '{TABLE_FORMAT}',
-                    partitioning = ARRAY['year(release_date)']
-                )
-            """,
-            ENRICHED_MOVIES_TABLE: f"""
-                CREATE TABLE IF NOT EXISTS iceberg.{ICEBERG_SCHEMA}.{ENRICHED_MOVIES_TABLE} (
-                    id BIGINT, title VARCHAR, release_date DATE, overview VARCHAR,
-                    popularity DOUBLE, vote_average DOUBLE, vote_count INTEGER,
-                    genres ARRAY(VARCHAR), original_language VARCHAR,
-                    original_title VARCHAR, backdrop_path VARCHAR, poster_path VARCHAR,
-                    imdb_rating DOUBLE, imdb_votes INTEGER, metacritic_score INTEGER,
-                    rotten_tomatoes_score INTEGER, created_at TIMESTAMP, updated_at TIMESTAMP
-                ) WITH (
-                    format = '{TABLE_FORMAT}',
-                    partitioning = ARRAY['year(release_date)']
-                )
-            """,
-            MOVIE_RATINGS_TABLE: f"""
-                CREATE TABLE IF NOT EXISTS iceberg.{ICEBERG_SCHEMA}.{MOVIE_RATINGS_TABLE} (
-                    movie_id BIGINT, source VARCHAR, rating DOUBLE, max_rating DOUBLE,
-                    votes_count INTEGER, rating_date DATE, created_at TIMESTAMP
-                ) WITH (
-                    format = '{TABLE_FORMAT}',
-                    partitioning = ARRAY['year(rating_date)']
-                )
-            """
-        }
-        
-        # Create each table
-        for table_name, create_sql in tables.items():
-            if not self._execute_trino_command(create_sql, f"Creating {table_name} table"):
-                return False
-        
-        print("All tables created successfully")
-        return True
+
     
     def _execute_trino_command(self, command: str, description: str) -> bool:
         """Execute a Trino command"""
@@ -313,22 +260,16 @@ class MovieRatingsSetup:
         print("Verifying setup...")
         
         try:
+            # Just verify that Trino is accessible
             result = subprocess.run([
                 'docker', 'exec', TRINO_CONTAINER, 'trino',
                 '--server', TRINO_SERVER,
-                '--catalog', 'iceberg',
-                '--schema', ICEBERG_SCHEMA,
-                '--execute', 'SHOW TABLES;'
+                '--execute', 'SELECT 1;'
             ], capture_output=True, text=True, check=True)
             
-            if RAW_MOVIES_TABLE in result.stdout and ENRICHED_MOVIES_TABLE in result.stdout:
-                print("Setup verification successful!")
-                print("Available tables:")
-                print(result.stdout)
-                return True
-            else:
-                print("Setup verification failed - tables not found")
-                return False
+            print("Setup verification successful!")
+            print("Trino is accessible and ready for use")
+            return True
                 
         except subprocess.CalledProcessError as e:
             print(f"Setup verification failed: {e}")
@@ -351,17 +292,13 @@ class MovieRatingsSetup:
             print("Polaris setup failed")
             return False
         
-        if not self.create_tables():
-            print("Table creation failed")
-            return False
-        
         if not self.verify_setup():
             print("Setup verification failed")
             return False
         
         print("\n" + "=" * 50)
         print("Setup completed successfully!")
-        print("Your Movie Ratings data lakehouse is ready!")
+        print("Your Movie Ratings data lakehouse infrastructure is ready!")
         print("=" * 50)
         
         return True
