@@ -8,7 +8,6 @@ from playwright.sync_api import sync_playwright, Page, Browser, BrowserContext
 from typing import Optional, Dict
 import time
 import logging
-from .ratings_models import validate_ratings
 import re
 import unicodedata
 from dotenv import load_dotenv
@@ -62,7 +61,7 @@ class BaseScraper(ABC):
         result['title'] = movie_title # type: ignore
         result['year'] = year
 
-        return validate_ratings(result)
+        return result
     
     def _preprocess_title(self, title: str, sep: str) -> str:
         """Convert title to a URL-safe slug."""

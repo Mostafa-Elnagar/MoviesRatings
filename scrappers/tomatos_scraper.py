@@ -40,6 +40,7 @@ class RottenTomatoesScraper(PlaywrightScraper):
     def _parse_content(self, html_content: str) -> Dict[str, int | float | None]:
         soup = BeautifulSoup(html_content, "html.parser")
         ratings: Dict[str, int | float | None] = {
+            "data_source": "rottentomatoes",
             "critic_score": None,
             "critic_count": None,
             "user_score": None,
