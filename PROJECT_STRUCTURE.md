@@ -21,11 +21,15 @@ MovieRatings/
 │   ├── setup.py               # Infrastructure setup
 │   ├── create_stage_schema.py # Schema and table creation
 │   ├── run_complete_pipeline.py # Complete pipeline runner
+│   ├── run_top_rated_pipeline.py # Top-rated movies pipeline runner
+│   ├── run_full_top_rated_pipeline.py # Full top-rated pipeline (all pages)
+│   ├── test_top_rated_data.py # Top-rated data analysis
 │   ├── status.py              # Service status checker
 │   └── verify_current_status.py # Current status verification
 │
 ├── data_pipeline/             # Data processing modules
 │   ├── comprehensive_ingestor.py # Main data ingestion orchestrator
+│   ├── top_rated_ingestor.py # Top-rated movies pipeline
 │   ├── stage_data_loader.py   # Data loader for Iceberg tables
 │   └── scrappers/             # Web scraping modules
 │       ├── __init__.py
@@ -38,6 +42,7 @@ MovieRatings/
 │
 ├── config/                    # Configuration files
 │   ├── settings.py            # Centralized settings
+│   ├── top_rated_pipeline_config.yaml # Top-rated pipeline configuration
 │   └── env.example            # Environment template
 │
 └── docs/                      # Additional documentation
