@@ -64,7 +64,6 @@ class MultiTableInserter:
         """Transform movie data for tmdb_movies table"""
         transformed = {}
         
-        
         field_mapping = {
             'tmdb_id': movie.get('tmdb_id'),
             'imdb_id': movie.get('imdb_id'),
@@ -250,7 +249,7 @@ class MultiTableInserter:
             
             success = self._execute_trino_sql_file(insert_sql, f"Inserting {len(movies)} movies into tmdb_movies")
             if success:
-                logger.info(f"✅ Successfully inserted {len(movies)} movies into tmdb_movies table")
+                logger.info(f"Successfully inserted {len(movies)} movies into tmdb_movies table")
             
             return success
             
@@ -269,7 +268,7 @@ class MultiTableInserter:
             
             success = self._execute_trino_sql_file(insert_sql, f"Inserting {len(movies)} movies into omdb_movies")
             if success:
-                logger.info(f"✅ Successfully inserted {len(movies)} movies into omdb_movies table")
+                logger.info(f"Successfully inserted {len(movies)} movies into omdb_movies table")
             
             return success
             
@@ -283,7 +282,7 @@ class MultiTableInserter:
             metacritic_movies = [movie for movie in movies if movie.get('metacritic_critic_score') is not None]
             
             if not metacritic_movies:
-                logger.info("⚠️ No Metacritic data to insert")
+                logger.info("No Metacritic data to insert")
                 return True
             
             transformed_movies = [self.transform_for_metacritic_table(movie) for movie in metacritic_movies]
@@ -294,7 +293,7 @@ class MultiTableInserter:
             
             success = self._execute_trino_sql_file(insert_sql, f"Inserting {len(transformed_movies)} ratings into metacritic_ratings")
             if success:
-                logger.info(f"✅ Successfully inserted {len(transformed_movies)} ratings into metacritic_ratings table")
+                logger.info(f"Successfully inserted {len(transformed_movies)} ratings into metacritic_ratings table")
             
             return success
             
@@ -308,7 +307,7 @@ class MultiTableInserter:
             rt_movies = [movie for movie in movies if movie.get('rt_critic_score') is not None]
             
             if not rt_movies:
-                logger.info("⚠️ No Rotten Tomatoes data to insert")
+                logger.info("No Rotten Tomatoes data to insert")
                 return True
             
             transformed_movies = [self.transform_for_rotten_tomatoes_table(movie) for movie in rt_movies]
@@ -319,7 +318,7 @@ class MultiTableInserter:
             
             success = self._execute_trino_sql_file(insert_sql, f"Inserting {len(transformed_movies)} ratings into rotten_tomatoes_ratings")
             if success:
-                logger.info(f"✅ Successfully inserted {len(transformed_movies)} ratings into rotten_tomatoes_ratings table")
+                logger.info(f"Successfully inserted {len(transformed_movies)} ratings into rotten_tomatoes_ratings table")
             
             return success
             
@@ -346,7 +345,7 @@ class MultiTableInserter:
     def _execute_trino_command(self, command: str, description: str) -> bool:
         """Execute a Trino command via Docker exec"""
         try:
-            logger.info(f"🔄 {description}")
+            logger.info(f"Executing: {description}")
             
             docker_cmd = [
                 'docker', 'exec', self.container_name, 'trino',
@@ -359,19 +358,19 @@ class MultiTableInserter:
             result = subprocess.run(docker_cmd, capture_output=True, text=True, timeout=60)
             
             if result.returncode == 0:
-                logger.info(f"✅ {description} completed successfully")
+                logger.info(f"Command completed successfully: {description}")
                 return True
             else:
-                logger.error(f"❌ {description} failed with return code {result.returncode}")
+                logger.error(f"Command failed with return code {result.returncode}: {description}")
                 if result.stderr:
                     logger.error(f"Error output: {result.stderr}")
                 return False
                 
         except subprocess.TimeoutExpired:
-            logger.error(f"❌ {description} timed out")
+            logger.error(f"Command timed out: {description}")
             return False
         except Exception as e:
-            logger.error(f"❌ {description} failed: {e}")
+            logger.error(f"Command failed: {description} - {e}")
             return False
     
     def _execute_trino_sql_file(self, sql: str, description: str) -> bool:
@@ -402,10 +401,10 @@ class MultiTableInserter:
                 result = subprocess.run(exec_cmd, capture_output=True, text=True, timeout=60)
                 
                 if result.returncode == 0:
-                    logger.info(f"✅ {description} completed successfully")
+                    logger.info(f"SQL execution completed successfully: {description}")
                     return True
                 else:
-                    logger.error(f"❌ {description} failed with return code {result.returncode}")
+                    logger.error(f"SQL execution failed with return code {result.returncode}: {description}")
                     if result.stderr:
                         logger.error(f"Error output: {result.stderr}")
                     return False
@@ -414,9 +413,9 @@ class MultiTableInserter:
                 os.unlink(temp_file_path)
                 
         except Exception as e:
-            logger.error(f"❌ {description} failed: {e}")
+            logger.error(f"SQL execution failed: {description} - {e}")
             return False
     
     def disconnect(self):
         """No connection to close with Docker exec approach"""
-        logger.info("🔌 Docker exec connection closed")
+        logger.info("Docker exec connection closed")

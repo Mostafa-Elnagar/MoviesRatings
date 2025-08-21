@@ -38,10 +38,10 @@ class ComprehensiveIngestor:
             self.metacritic_scraper = MetacriticScraper()
             self.rotten_tomatoes_scraper = RottenTomatoesScraper(headless=headless)
             self.scrapers_available = True
-            logger.info("✅ Scrapers initialized successfully")
+            logger.info("Scrapers initialized successfully")
         except Exception as e:
-            logger.warning(f"⚠️ Scrapers not available: {e}")
-            logger.info("📝 Continuing with OMDb API only")
+            logger.warning(f"Scrapers not available: {e}")
+            logger.info("Continuing with OMDb API only")
         
         # Statistics
         self.stats = {
@@ -125,7 +125,6 @@ class ComprehensiveIngestor:
                 enhanced_movie = movie.copy()
                 enhanced_movie.update({
                     'rt_critic_score': rt_data.get('critic_score'),
-                    'rt_critic_count': rt_data.get('critic_count'),
                     'rt_user_score': rt_data.get('user_score'),
                     'rt_user_count': rt_data.get('user_count'),
                     'rt_data_source': 'rottentomatoes',
@@ -177,11 +176,11 @@ class ComprehensiveIngestor:
         enhanced_movies = []
         total_movies = len(movies)
         
-        print(f"   📊 Processing {total_movies} movies...")
+        print(f"   Processing {total_movies} movies...")
         
         for i, movie in enumerate(movies):
             try:
-                print(f"   🎥 {i+1:3d}/{total_movies}: {movie.get('title', 'Unknown')}")
+                print(f"   Movie {i+1:3d}/{total_movies}: {movie.get('title', 'Unknown')}")
                 
                 # Add basic metadata
                 movie['data_source'] = 'tmdb'
@@ -193,7 +192,7 @@ class ComprehensiveIngestor:
                 
                 # Progress update
                 if (i + 1) % 10 == 0:
-                    print(f"      ✅ Processed {i+1}/{total_movies} movies")
+                    print(f"      Processed {i+1}/{total_movies} movies")
                 
             except Exception as e:
                 logger.error(f"Error processing movie {i+1}: {e}")
@@ -213,7 +212,7 @@ class ComprehensiveIngestor:
         """Insert enhanced movies into appropriate tables"""
         try:
             if not self.multi_inserter.test_connection():
-                logger.error("❌ Database connection test failed")
+                logger.error("Database connection test failed")
                 return False
             
             # Insert into all appropriate tables
@@ -223,10 +222,10 @@ class ComprehensiveIngestor:
             all_success = all(results.values())
             if all_success:
                 self.stats['database_inserted'] += len(enhanced_movies)
-                logger.info("✅ Successfully inserted data into all tables")
+                logger.info("Successfully inserted data into all tables")
             else:
                 failed_tables = [table for table, success in results.items() if not success]
-                logger.warning(f"⚠️ Failed to insert into tables: {failed_tables}")
+                logger.warning(f"Failed to insert into tables: {failed_tables}")
             
             self.multi_inserter.disconnect()
             return all_success
@@ -240,7 +239,7 @@ class ComprehensiveIngestor:
         tmdb_files = self.base_ingestor.get_tmdb_files()
         
         if not tmdb_files:
-            logger.error("❌ No TMDB files found")
+            logger.error("No TMDB files found")
             return {'success': False, 'error': 'No TMDB files found'}
         
         results = {
@@ -254,7 +253,7 @@ class ComprehensiveIngestor:
         
         for file_path in tmdb_files:
             try:
-                print(f"\n🎬 Processing: {file_path.name}")
+                print(f"\nProcessing: {file_path.name}")
                 
                 # Process the file
                 enhanced_movies = self.process_file_comprehensive(file_path, max_movies)
@@ -275,14 +274,14 @@ class ComprehensiveIngestor:
                 if not db_success:
                     results['success'] = False
                 
-                print(f"💾 Saved {len(enhanced_movies)} enhanced movies to {output_filename}")
+                print(f"Saved {len(enhanced_movies)} enhanced movies to {output_filename}")
                 if db_success:
-                    print(f"✅ Successfully inserted {len(enhanced_movies)} movies into database")
+                    print(f"Successfully inserted {len(enhanced_movies)} movies into database")
                 else:
-                    print(f"❌ Failed to insert movies into database")
+                    print(f"Failed to insert movies into database")
                 
                 # Print current stats
-                print(f"📊 Current stats: OMDb: {self.stats['omdb_enhanced']}, "
+                print(f"Current stats: OMDb: {self.stats['omdb_enhanced']}, "
                       f"Metacritic: {self.stats['metacritic_enhanced']}, "
                       f"RT: {self.stats['rotten_tomatoes_enhanced']}, "
                       f"Errors: {self.stats['errors']}")
@@ -290,7 +289,7 @@ class ComprehensiveIngestor:
             except Exception as e:
                 results['success'] = False
                 logger.error(f"Error processing {file_path}: {e}")
-                print(f"❌ Error processing {file_path.name}: {e}")
+                print(f"Error processing {file_path.name}: {e}")
                 continue  # Continue with next file instead of stopping
         
         results['enhancement_stats'] = self.get_statistics()
