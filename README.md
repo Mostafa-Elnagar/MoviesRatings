@@ -269,9 +269,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Trino](https://trino.io/) for SQL query engine
 - [Apache Polaris](https://polaris.apache.org/) for catalog management
 
-## 📞 Support
-
-For issues and questions:
-- Check the logs in the `logs/` directory
-- Review the troubleshooting section above
-- Open an issue in the repository
