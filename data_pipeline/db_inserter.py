@@ -8,7 +8,6 @@ import logging
 import subprocess
 import tempfile
 import os
-from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
@@ -34,12 +33,8 @@ class DatabaseInserter:
             result = self._execute_trino_command("SELECT 1", "Testing connection")
             return result
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Trino: {e}")
+            logger.error(f"Failed to connect to Trino: {e}")
             return False
-    
-    def disconnect(self):
-        """No connection to close with Docker exec approach"""
-        logger.info("🔌 Docker exec connection closed")
     
     def transform_movie_data(self, movie: Dict[str, Any]) -> Dict[str, Any]:
         """Transform movie data to match the omdb_movies table schema"""
@@ -128,7 +123,7 @@ VALUES
         try:
             # Transform all movies
             transformed_movies = [self.transform_movie_data(movie) for movie in movies]
-            logger.info(f"🔄 Transformed {len(transformed_movies)} movies for database insertion")
+            logger.info(f"Transformed {len(transformed_movies)} movies for database insertion")
             
             # Process in batches
             total_inserted = 0
@@ -137,12 +132,12 @@ VALUES
                 batch_num = (i // batch_size) + 1
                 total_batches = (len(transformed_movies) + batch_size - 1) // batch_size
                 
-                logger.info(f"📦 Processing batch {batch_num}/{total_batches} ({len(batch)} movies)")
+                logger.info(f"Processing batch {batch_num}/{total_batches} ({len(batch)} movies)")
                 
                 # Create and execute INSERT SQL
                 insert_sql = self.create_insert_sql(batch)
                 if not insert_sql:
-                    logger.warning("⚠️ No SQL generated for batch, skipping")
+                    logger.warning("No SQL generated for batch, skipping")
                     continue
                 
                 try:
@@ -150,26 +145,26 @@ VALUES
                     success = self._execute_trino_sql_file(insert_sql, f"Inserting batch {batch_num}")
                     if success:
                         total_inserted += len(batch)
-                        logger.info(f"✅ Batch {batch_num} inserted successfully ({len(batch)} movies)")
+                        logger.info(f"Batch {batch_num} inserted successfully ({len(batch)} movies)")
                     else:
-                        logger.error(f"❌ Failed to insert batch {batch_num}")
+                        logger.error(f"Failed to insert batch {batch_num}")
                         return False
                     
                 except Exception as e:
-                    logger.error(f"❌ Unexpected error in batch {batch_num}: {e}")
+                    logger.error(f"Unexpected error in batch {batch_num}: {e}")
                     return False
             
-            logger.info(f"🎉 Successfully inserted {total_inserted} movies into database")
+            logger.info(f"Successfully inserted {total_inserted} movies into database")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Bulk insert failed: {e}")
+            logger.error(f"Bulk insert failed: {e}")
             return False
     
     def _execute_trino_command(self, command: str, description: str) -> bool:
         """Execute a Trino command via Docker exec"""
         try:
-            logger.info(f"🔄 {description}")
+            logger.info(f"{description}")
             
             # Prepare the Docker exec command
             docker_cmd = [
@@ -189,25 +184,25 @@ VALUES
             )
             
             if result.returncode == 0:
-                logger.info(f"✅ {description} completed successfully")
+                logger.info(f"{description} completed successfully")
                 return True
             else:
-                logger.error(f"❌ {description} failed with return code {result.returncode}")
+                logger.error(f"{description} failed with return code {result.returncode}")
                 if result.stderr:
                     logger.error(f"Error output: {result.stderr}")
                 return False
                 
         except subprocess.TimeoutExpired:
-            logger.error(f"❌ {description} timed out")
+            logger.error(f"{description} timed out")
             return False
         except Exception as e:
-            logger.error(f"❌ {description} failed: {e}")
+            logger.error(f"{description} failed: {e}")
             return False
     
     def _execute_trino_sql_file(self, sql: str, description: str) -> bool:
         """Execute a Trino SQL command via Docker exec using a file input"""
         try:
-            logger.info(f"🔄 {description}")
+            logger.info(f"{description}")
             
             # Create a temporary SQL file
             with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False, encoding='utf-8') as f:
@@ -222,7 +217,7 @@ VALUES
                 
                 result = subprocess.run(copy_cmd, capture_output=True, text=True, timeout=30)
                 if result.returncode != 0:
-                    logger.error(f"❌ Failed to copy SQL file to container: {result.stderr}")
+                    logger.error(f"Failed to copy SQL file to container: {result.stderr}")
                     return False
                 
                 # Execute the SQL file in the container
@@ -242,10 +237,10 @@ VALUES
                 )
                 
                 if result.returncode == 0:
-                    logger.info(f"✅ {description} completed successfully")
+                    logger.info(f"{description} completed successfully")
                     return True
                 else:
-                    logger.error(f"❌ {description} failed with return code {result.returncode}")
+                    logger.error(f"{description} failed with return code {result.returncode}")
                     if result.stderr:
                         logger.error(f"Error output: {result.stderr}")
                     return False
@@ -258,10 +253,10 @@ VALUES
                     pass
                 
         except subprocess.TimeoutExpired:
-            logger.error(f"❌ {description} timed out")
+            logger.error(f"{description} timed out")
             return False
         except Exception as e:
-            logger.error(f"❌ {description} failed: {e}")
+            logger.error(f"{description} failed: {e}")
             return False
     
     def test_connection(self) -> bool:
@@ -270,7 +265,7 @@ VALUES
             result = self._execute_trino_command("SELECT 1", "Testing connection")
             return result
         except Exception as e:
-            logger.error(f"❌ Database connection test failed: {e}")
+            logger.error(f"Database connection test failed: {e}")
             return False
     
     def get_table_info(self) -> Optional[Dict[str, Any]]:
@@ -299,9 +294,9 @@ VALUES
                 logger.info(f"📋 Table info: {table_info['column_count']} columns")
                 return table_info
             else:
-                logger.error(f"❌ Failed to get table info: {result.stderr}")
+                logger.error(f"Failed to get table info: {result.stderr}")
                 return None
                 
         except Exception as e:
-            logger.error(f"❌ Failed to get table info: {e}")
+            logger.error(f"Failed to get table info: {e}")
             return None

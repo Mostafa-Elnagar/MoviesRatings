@@ -164,22 +164,10 @@ The pipeline provides built-in analytics:
 
 ## 🚀 Usage Examples
 
-### Run Basic Ingestion
-
-```bash
-python scripts/simple_ingestion.py
-```
-
 ### Run Comprehensive Pipeline
 
 ```bash
 python scripts/run_pipeline.py [max_movies]
-```
-
-### Test Database Connection
-
-```bash
-python scripts/test_ingestion.py
 ```
 
 ### Create Database Schema
