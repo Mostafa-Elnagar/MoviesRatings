@@ -86,5 +86,4 @@ class RottenTomatoesScraper(PlaywrightScraper):
                 except (ValueError, AttributeError):
                     pass
         
-
         return ratings

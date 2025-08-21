@@ -1,0 +1,103 @@
+{
+  "total_movies": 100,
+  "year_range": {
+    "min": 1931,
+    "max": 2025,
+    "avg": 1996.86
+  },
+  "rating_stats": {
+    "mean": 8.225999999999999,
+    "median": 8.4,
+    "std": 0.6637238077162014,
+    "min": 5.9,
+    "max": 9.3
+  },
+  "genre_distribution": {
+    "Drama": 78,
+    "Animation": 24,
+    "Adventure": 21,
+    "Crime": 18,
+    "Comedy": 16,
+    "Action": 15,
+    "Romance": 14,
+    "Fantasy": 12,
+    "Mystery": 7,
+    "Music": 7
+  },
+  "top_movies": [
+    {
+      "title": "The Shawshank Redemption",
+      "omdb_imdb_rating": 9.3,
+      "year": 1994
+    },
+    {
+      "title": "The Godfather",
+      "omdb_imdb_rating": 9.2,
+      "year": 1972
+    },
+    {
+      "title": "The Dark Knight",
+      "omdb_imdb_rating": 9.1,
+      "year": 2008
+    },
+    {
+      "title": "The Godfather Part II",
+      "omdb_imdb_rating": 9.0,
+      "year": 1974
+    },
+    {
+      "title": "Schindler's List",
+      "omdb_imdb_rating": 9.0,
+      "year": 1993
+    },
+    {
+      "title": "12 Angry Men",
+      "omdb_imdb_rating": 9.0,
+      "year": 1957
+    },
+    {
+      "title": "The Lord of the Rings: The Return of the King",
+      "omdb_imdb_rating": 9.0,
+      "year": 2003
+    },
+    {
+      "title": "The Lord of the Rings: The Fellowship of the Ring",
+      "omdb_imdb_rating": 8.9,
+      "year": 2001
+    },
+    {
+      "title": "Pulp Fiction",
+      "omdb_imdb_rating": 8.8,
+      "year": 1994
+    },
+    {
+      "title": "Forrest Gump",
+      "omdb_imdb_rating": 8.8,
+      "year": 1994
+    }
+  ],
+  "director_stats": {
+    "Akira Kurosawa": 3,
+    "Tosca Musk": 3,
+    "Hayao Miyazaki": 3,
+    "Christopher Nolan": 3,
+    "Charles Chaplin": 3,
+    "Peter Jackson": 3,
+    "Francis Ford Coppola": 3,
+    "Sergio Leone": 3,
+    "Frank Darabont": 2,
+    "Alfred Hitchcock": 2
+  },
+  "country_stats": {
+    "United States": 36,
+    "Japan": 17,
+    "Italy": 4,
+    "Japan, United States": 3,
+    "South Korea": 3,
+    "Mexico": 3,
+    "Italy, United States": 2,
+    "N/A": 2,
+    "New Zealand, United States": 2,
+    "United States, United Kingdom": 2
+  }
+}

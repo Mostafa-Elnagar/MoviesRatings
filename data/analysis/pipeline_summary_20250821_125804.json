@@ -1,0 +1,23 @@
+{
+  "total_files_processed": 5,
+  "total_movies_processed": 170,
+  "processing_timestamp": "2025-08-21T12:58:04.766883",
+  "files_processed": [
+    "enhanced_tmdb_top_rated_movies_20250821_002654_20250821_123211.json",
+    "enhanced_tmdb_top_rated_movies_20250821_002654_20250821_124104.json",
+    "enhanced_tmdb_top_rated_movies_20250821_002654_20250821_124220.json",
+    "enhanced_tmdb_top_rated_movies_20250821_002654_20250821_124252.json",
+    "enhanced_tmdb_top_rated_movies_20250821_002654_20250821_125538.json"
+  ],
+  "analysis_files": [
+    "data\\analysis\\analysis_enhanced_tmdb_top_rated_movies_20250821_002654_20250821_123211_20250821_125804.json",
+    "data\\analysis\\analysis_enhanced_tmdb_top_rated_movies_20250821_002654_20250821_124104_20250821_125804.json",
+    "data\\analysis\\analysis_enhanced_tmdb_top_rated_movies_20250821_002654_20250821_124220_20250821_125804.json",
+    "data\\analysis\\analysis_enhanced_tmdb_top_rated_movies_20250821_002654_20250821_124252_20250821_125804.json",
+    "data\\analysis\\analysis_enhanced_tmdb_top_rated_movies_20250821_002654_20250821_125538_20250821_125804.json"
+  ],
+  "overall_rating_stats": {
+    "average_rating": 8.7336,
+    "total_ratings_analyzed": 5
+  }
+}

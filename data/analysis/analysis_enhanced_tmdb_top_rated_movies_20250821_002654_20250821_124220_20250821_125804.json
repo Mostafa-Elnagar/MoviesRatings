@@ -1,0 +1,96 @@
+{
+  "total_movies": 10,
+  "year_range": {
+    "min": 1957,
+    "max": 2019,
+    "avg": 1991.2
+  },
+  "rating_stats": {
+    "mean": 8.83,
+    "median": 9.0,
+    "std": 0.39735234853828266,
+    "min": 8.0,
+    "max": 9.3
+  },
+  "genre_distribution": {
+    "Drama": 9,
+    "Crime": 5,
+    "Biography": 1,
+    "History": 1,
+    "Animation": 1,
+    "Adventure": 1,
+    "Family": 1,
+    "Action": 1,
+    "Romance": 1,
+    "Fantasy": 1
+  },
+  "top_movies": [
+    {
+      "title": "The Shawshank Redemption",
+      "omdb_imdb_rating": 9.3,
+      "year": 1994
+    },
+    {
+      "title": "The Godfather",
+      "omdb_imdb_rating": 9.2,
+      "year": 1972
+    },
+    {
+      "title": "The Dark Knight",
+      "omdb_imdb_rating": 9.1,
+      "year": 2008
+    },
+    {
+      "title": "The Godfather Part II",
+      "omdb_imdb_rating": 9.0,
+      "year": 1974
+    },
+    {
+      "title": "Schindler's List",
+      "omdb_imdb_rating": 9.0,
+      "year": 1993
+    },
+    {
+      "title": "12 Angry Men",
+      "omdb_imdb_rating": 9.0,
+      "year": 1957
+    },
+    {
+      "title": "Spirited Away",
+      "omdb_imdb_rating": 8.6,
+      "year": 2001
+    },
+    {
+      "title": "The Green Mile",
+      "omdb_imdb_rating": 8.6,
+      "year": 1999
+    },
+    {
+      "title": "Parasite",
+      "omdb_imdb_rating": 8.5,
+      "year": 2019
+    },
+    {
+      "title": "Dilwale Dulhania Le Jayenge",
+      "omdb_imdb_rating": 8.0,
+      "year": 1995
+    }
+  ],
+  "director_stats": {
+    "Frank Darabont": 2,
+    "Francis Ford Coppola": 2,
+    "Steven Spielberg": 1,
+    "Sidney Lumet": 1,
+    "Hayao Miyazaki": 1,
+    "Christopher Nolan": 1,
+    "Aditya Chopra": 1,
+    "Bong Joon Ho": 1
+  },
+  "country_stats": {
+    "United States": 6,
+    "Japan, United States": 1,
+    "United States, United Kingdom": 1,
+    "India": 1,
+    "South Korea": 1
+  }
+}

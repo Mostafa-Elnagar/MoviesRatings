@@ -1,0 +1,57 @@
+{
+  "total_movies": 5,
+  "year_range": {
+    "min": 1957,
+    "max": 1994,
+    "avg": 1978.0
+  },
+  "rating_stats": {
+    "mean": 9.1,
+    "median": 9.0,
+    "std": 0.14142135623730961,
+    "min": 9.0,
+    "max": 9.3
+  },
+  "genre_distribution": {
+    "Drama": 5,
+    "Crime": 3,
+    "Biography": 1,
+    "History": 1
+  },
+  "top_movies": [
+    {
+      "title": "The Shawshank Redemption",
+      "omdb_imdb_rating": 9.3,
+      "year": 1994
+    },
+    {
+      "title": "The Godfather",
+      "omdb_imdb_rating": 9.2,
+      "year": 1972
+    },
+    {
+      "title": "The Godfather Part II",
+      "omdb_imdb_rating": 9.0,
+      "year": 1974
+    },
+    {
+      "title": "Schindler's List",
+      "omdb_imdb_rating": 9.0,
+      "year": 1993
+    },
+    {
+      "title": "12 Angry Men",
+      "omdb_imdb_rating": 9.0,
+      "year": 1957
+    }
+  ],
+  "director_stats": {
+    "Francis Ford Coppola": 2,
+    "Frank Darabont": 1,
+    "Steven Spielberg": 1,
+    "Sidney Lumet": 1
+  },
+  "country_stats": {
+    "United States": 5
+  }
+}

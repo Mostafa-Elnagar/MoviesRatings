@@ -1,0 +1,27 @@
+# Core dependencies for ingestion pipeline
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Web scraping dependencies
+beautifulsoup4>=4.12.0
+playwright>=1.40.0
+lxml>=4.9.0
+
+# Data processing
+pandas>=2.0.0
+pyyaml>=6.0.0
+
+# HTTP and API handling
+urllib3>=2.0.0
+httpx>=0.25.0
+
+# Logging and monitoring
+structlog>=23.0.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Optional: Performance monitoring
+psutil>=5.9.0
+memory-profiler>=0.61.0

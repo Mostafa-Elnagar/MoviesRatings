@@ -1,0 +1,23 @@
+{
+  "summary": {
+    "total_actors": 0,
+    "total_actresses": 0,
+    "total_directors": 0,
+    "total_writers": 0,
+    "total_producers": 0,
+    "total_cast_appearances": 0,
+    "total_crew_appearances": 0,
+    "total_collaboration_networks": 0
+  },
+  "cast_data": {
+    "actors": [],
+    "actresses": [],
+    "directors": [],
+    "writers": [],
+    "producers": [],
+    "cast_movies": [],
+    "crew_movies": [],
+    "actor_networks": [],
+    "collaboration_networks": []
+  }
+}

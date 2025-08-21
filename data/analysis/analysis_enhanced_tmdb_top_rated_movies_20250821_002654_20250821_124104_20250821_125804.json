@@ -1,0 +1,103 @@
+{
+  "total_movies": 50,
+  "year_range": {
+    "min": 1954,
+    "max": 2025,
+    "avg": 1996.66
+  },
+  "rating_stats": {
+    "mean": 8.412,
+    "median": 8.6,
+    "std": 0.6793273984506396,
+    "min": 5.9,
+    "max": 9.3
+  },
+  "genre_distribution": {
+    "Drama": 40,
+    "Crime": 13,
+    "Adventure": 12,
+    "Animation": 8,
+    "Action": 7,
+    "Romance": 7,
+    "Fantasy": 7,
+    "Mystery": 5,
+    "Biography": 3,
+    "Family": 3
+  },
+  "top_movies": [
+    {
+      "title": "The Shawshank Redemption",
+      "omdb_imdb_rating": 9.3,
+      "year": 1994
+    },
+    {
+      "title": "The Godfather",
+      "omdb_imdb_rating": 9.2,
+      "year": 1972
+    },
+    {
+      "title": "The Dark Knight",
+      "omdb_imdb_rating": 9.1,
+      "year": 2008
+    },
+    {
+      "title": "The Godfather Part II",
+      "omdb_imdb_rating": 9.0,
+      "year": 1974
+    },
+    {
+      "title": "Schindler's List",
+      "omdb_imdb_rating": 9.0,
+      "year": 1993
+    },
+    {
+      "title": "12 Angry Men",
+      "omdb_imdb_rating": 9.0,
+      "year": 1957
+    },
+    {
+      "title": "The Lord of the Rings: The Return of the King",
+      "omdb_imdb_rating": 9.0,
+      "year": 2003
+    },
+    {
+      "title": "The Lord of the Rings: The Fellowship of the Ring",
+      "omdb_imdb_rating": 8.9,
+      "year": 2001
+    },
+    {
+      "title": "Pulp Fiction",
+      "omdb_imdb_rating": 8.8,
+      "year": 1994
+    },
+    {
+      "title": "Forrest Gump",
+      "omdb_imdb_rating": 8.8,
+      "year": 1994
+    }
+  ],
+  "director_stats": {
+    "Peter Jackson": 3,
+    "Tosca Musk": 3,
+    "Christopher Nolan": 3,
+    "Frank Darabont": 2,
+    "Francis Ford Coppola": 2,
+    "David Fincher": 2,
+    "Akira Kurosawa": 2,
+    "Sergio Leone": 2,
+    "Alfred Hitchcock": 2,
+    "Hayao Miyazaki": 2
+  },
+  "country_stats": {
+    "United States": 21,
+    "Japan": 6,
+    "United States, United Kingdom": 2,
+    "South Korea": 2,
+    "New Zealand, United States": 2,
+    "Japan, United States": 2,
+    "Brazil, France": 1,
+    "France, Poland, Germany, United Kingdom, United States": 1,
+    "N/A": 1,
+    "Canada, United States": 1
+  }
+}
